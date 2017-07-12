@@ -1,30 +1,57 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { VictoryBar, VictoryChart, VictoryGroup, VictoryTheme } from 'victory';
+import { VictoryBar, VictoryAxis, VictoryZoomContainer, VictoryTooltip, VictoryChart, VictoryGroup, VictoryTheme } from 'victory';
 import assign from 'object-assign';
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentIndex: 0
+      currentIndex: 0,
+      selectedDomain: null,
+      zoomDomain: null
     };
+  }
+
+  handleZoom(domain) {
+    this.setState({selectedDomain: domain});
+  }
+
+  handleBrush(domain) {
+    this.setState({zoomDomain: domain});
   }
 
   render() {
     const data = [
                 {
-                  name: "Версия 1",
-                  duration: 24
+                  name: "Инициатор",
+                  duration: 123123,
+                  color: '#D0F165',
+                  durationText:'00:00',
+                  label: "SomeTooltip"
                 }, {
-                  name: "Версия 2",
-                  duration: 13
+                  name: "Начальник",
+                  duration: 11111,
+                  color: '#A6D34B',
+                  durationText:'00:00',
+                  label: "SomeTooltip"
                 }, {
-                  name: "Версия 3",
-                  duration: 70
+                  name: "Бухгалтер",
+                  duration: 55554,
+                  durationText:'00:00',
+                  color: '#A7D54B',
+                  label: "SomeTooltip"
                 }
               ];
+    const tickValues = [
+        123123,
+        11111,
+        55554,
+        75656,
+        433434
+    ];
+    
     return (
       <div className="App">
         <div className="App-header">
@@ -34,50 +61,51 @@ class App extends Component {
         <p className="App-intro">
           <div style={{height:'500px'}}>
               <VictoryChart
-                theme={VictoryTheme.material} 
+                theme={VictoryTheme.material}
+                
+                containerComponent={
+                  <VictoryZoomContainer
+                    dimension="x"
+                    zoomDomain={this.state.zoomDomain}
+                    onDomainChange={this.handleZoom.bind(this)}
+                  />
+                } 
                 domainPadding={50}>
-                <VictoryBar data={data} x="name" y="duration"
+                <VictoryBar data={data} x="name" y={(d) => d.duration}
                   animate={{ onLoad: { duration: 1000 } }}
-                  style={{ data: { width: 60 } }}
-                  events={[
+                  
+                  style={{ data: 
                   {
-                    target: "data",
-                    eventHandlers: {
-                      onMouseOver: () => {
-                        return [
-                          {
-                            mutation: (props) => 
-                            {
-                              return {
-                                style: assign(props.style, {fill: "#2F4F4F"})
-                              }
-                            }
-                          }
-                        ];
-                      },
-                      onMouseOut: () => {
-                        return [{
-                          mutation: () => 
-                          {
-                            return null;
-                          }
-                        }];
-                      },
-                      onClick: () => {
-                        return [{
-                          mutation: (props) => 
-                          {
-                            
-                            return {
-                              style: assign(props.style, {fill: "#2F4F4F"})
-                            }
-                          }
-                        }]
-                      }
-                    }
-                  }
-                ]}
+                    fill:(d) => {
+                      return d.color;
+                    },
+                    width: 60 
+                  } 
+                  }}
+                  labelComponent={
+                  <VictoryTooltip
+                    cornerRadius={(d) => 0}
+                    pointerLength={(d) => 5}
+                    flyoutStyle={{
+                      fill: (d) => "white",
+                      stroke: (d) => '#d8dadf'
+                    }}
+                  />}
                 />
+              <VictoryAxis dependentAxis
+                  tickFormat={(x) => 
+                  {
+                      return "00:00";
+                  }}
+                  style={{
+                    axisLabel: { padding: 40 }
+                  }}
+                />
+              <VictoryAxis
+                style={{
+                  axisLabel: { padding: 30 }
+                }}
+              />
               </VictoryChart>
             </div>
         </p>
