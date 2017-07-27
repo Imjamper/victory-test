@@ -1,114 +1,105 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { BarChart, Cell, Brush, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { VictoryBar, VictoryAxis, VictoryZoomContainer, VictoryTooltip, VictoryChart, VictoryGroup, VictoryTheme } from 'victory';
 import assign from 'object-assign';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      currentIndex: 0,
-      selectedDomain: null,
-      zoomDomain: null
-    };
-  }
-
-  handleZoom(domain) {
-    this.setState({selectedDomain: domain});
-  }
-
-  handleBrush(domain) {
-    this.setState({zoomDomain: domain});
-  }
-
-  render() {
-    const data = [
+const data = [
                 {
                   name: "Инициатор",
                   duration: 123123,
-                  color: '#D0F165',
+                  color: '#D0E06E',
                   durationText:'00:00',
                   label: "SomeTooltip"
                 }, {
                   name: "Начальник",
                   duration: 11111,
-                  color: '#A6D34B',
+                  color: '#8CB838',
                   durationText:'00:00',
                   label: "SomeTooltip"
                 }, {
                   name: "Бухгалтер",
                   duration: 55554,
                   durationText:'00:00',
-                  color: '#A7D54B',
+                  color: '#ACD249',
                   label: "SomeTooltip"
                 }
               ];
-    const tickValues = [
-        123123,
-        11111,
-        55554,
-        75656,
-        433434
-    ];
-    
+
+const CustomTooltip  = React.createClass({
+
+  render() {
+    const { active } = this.props;
+
+    if (active) {
+      const { payload, label } = this.props;
+      return (
+        <div className="toolTipWrapper">
+          <p className="label">{`${label}`}</p>
+          <p className="detail">{`Длительность:${payload[0].value}`}</p>
+        </div>
+      );
+    }
+
+    return null;
+  }
+});
+
+const CustomizedAxisTick = React.createClass({
+  render () {
+    const {x, y, stroke, payload} = this.props;
+		
+   	return (
+      <g transform={`translate(${x},${y})`} className="recharts-layer recharts-cartesian-axis-tick">
+        <text x={0} y={0} dy={6} className="recharts-text recharts-cartesian-axis-tick-value" textAnchor="end" fill="#666">{payload.value}</text>
+      </g>
+    );
+  }
+});
+
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      activeIndex: 0
+    };
+
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick(data, index) {
+  	this.setState({
+    	activeIndex: index
+    });
+  }
+
+  render() {
+    const { activeIndex } = this.state;
     return (
       <div className="App">
         <div className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h2>Welcome to React</h2>
         </div>
-        <p className="App-intro">
-          <div style={{height:'500px'}}>
-              <VictoryChart
-                theme={VictoryTheme.material}
-                
-                containerComponent={
-                  <VictoryZoomContainer
-                    dimension="x"
-                    zoomDomain={this.state.zoomDomain}
-                    onDomainChange={this.handleZoom.bind(this)}
-                  />
-                } 
-                domainPadding={50}>
-                <VictoryBar data={data} x="name" y={(d) => d.duration}
-                  animate={{ onLoad: { duration: 1000 } }}
-                  
-                  style={{ data: 
-                  {
-                    fill:(d) => {
-                      return d.color;
-                    },
-                    width: 60 
-                  } 
-                  }}
-                  labelComponent={
-                  <VictoryTooltip
-                    cornerRadius={(d) => 0}
-                    pointerLength={(d) => 5}
-                    flyoutStyle={{
-                      fill: (d) => "white",
-                      stroke: (d) => '#d8dadf'
-                    }}
-                  />}
-                />
-              <VictoryAxis dependentAxis
-                  tickFormat={(x) => 
-                  {
-                      return "00:00";
-                  }}
-                  style={{
-                    axisLabel: { padding: 40 }
-                  }}
-                />
-              <VictoryAxis
-                style={{
-                  axisLabel: { padding: 30 }
-                }}
-              />
-              </VictoryChart>
-            </div>
-        </p>
+        <p className="App-intro"/>
+        <div style={{height:'500px'}}>
+            <BarChart width={600} height={300} data={data}
+                margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+                <XAxis dataKey="name"/>
+                <YAxis axisLine={false} tick={<CustomizedAxisTick />}/>
+                <CartesianGrid vertical={false} stroke="#ebf3f0"/>
+                <Tooltip content={<CustomTooltip/>}/>
+                <Brush dataKey='name' height={30} stroke="#cfd6d9"/>
+                <Bar dataKey="duration" fill="#82ca9d" onClick={this.handleClick} minPointSize={10}>
+                {
+                  data.map((entry, index) => (
+                    <Cell cursor="pointer" fill={entry.color} key={`cell-${index}`}/>
+                  ))
+                }
+                </Bar>
+            </BarChart>  
+          </div>
       </div>
     );
   }

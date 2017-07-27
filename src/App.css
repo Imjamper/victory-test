@@ -22,3 +22,21 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.toolTipWrapper {
+  background: white;
+  border: 1px solid  gray;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.toolTipWrapper .label {
+  font-size: 14px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.toolTipWrapper .detail {
+  font-size: 12px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
