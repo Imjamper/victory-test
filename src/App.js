@@ -1,62 +1,84 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { BarChart, Cell, Brush, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { ResponsiveContainer, BarChart, Cell, Brush, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { VictoryBar, VictoryAxis, VictoryZoomContainer, VictoryTooltip, VictoryChart, VictoryGroup, VictoryTheme } from 'victory';
 import assign from 'object-assign';
 
 const data = [
                 {
                   name: "Инициатор",
-                  duration: 123123,
-                  color: '#D0E06E',
-                  durationText:'00:00',
-                  label: "SomeTooltip"
+                  duration: 900,
+                  color: '#D0E06E'
                 }, {
                   name: "Начальник",
-                  duration: 11111,
-                  color: '#8CB838',
-                  durationText:'00:00',
-                  label: "SomeTooltip"
+                  duration: 3600,
+                  color: '#8CB838'
                 }, {
                   name: "Бухгалтер",
-                  duration: 55554,
-                  durationText:'00:00',
+                  duration: 2100,
                   color: '#ACD249',
-                  label: "SomeTooltip"
                 }
               ];
 
-const CustomTooltip  = React.createClass({
+class CustomTooltip extends Component {
+  constructor(props) {
+    super(props);
+
+    this.pad = this.pad.bind(this);
+  }
+
+  pad(n, width) {
+    var n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+  }
 
   render() {
     const { active } = this.props;
 
     if (active) {
       const { payload, label } = this.props;
+      const hh = Math.floor(payload[0].value / 3600);
+      const mm = Math.floor((payload[0].value % 3600) / 60);
+      const ss = payload[0].value % 60;
+      const value = this.pad(hh, 2) + ":" + this.pad(mm, 2) + ":" + this.pad(ss, 2);
       return (
         <div className="toolTipWrapper">
           <p className="label">{`${label}`}</p>
-          <p className="detail">{`Длительность:${payload[0].value}`}</p>
+          <p className="detail">{`Длительность: ${value}`}</p>
         </div>
       );
     }
 
     return null;
   }
-});
+}
 
-const CustomizedAxisTick = React.createClass({
+class CustomizedAxisTick extends Component {
+  constructor(props) {
+    super(props);
+
+    this.pad = this.pad.bind(this);
+  }
+
+  pad(n, width) {
+    var n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+  }
+
   render () {
     const {x, y, stroke, payload} = this.props;
-		
+		const hh = Math.floor(payload.value / 3600);
+    const mm = Math.floor((payload.value % 3600) / 60);
+    const ss = payload.value % 60;
+    const value = this.pad(hh, 2) + ":" + this.pad(mm, 2) + ":" + this.pad(ss, 2);
    	return (
       <g transform={`translate(${x},${y})`} className="recharts-layer recharts-cartesian-axis-tick">
-        <text x={0} y={0} dy={6} className="recharts-text recharts-cartesian-axis-tick-value" textAnchor="end" fill="#666">{payload.value}</text>
+        <text x={0} y={0} dy={6} dx={-5} className="recharts-text recharts-cartesian-axis-tick-value" textAnchor="end" fill="#666">{value}</text>
       </g>
     );
   }
-});
+}
 
 class App extends Component {
   constructor(props) {
@@ -84,13 +106,14 @@ class App extends Component {
         </div>
         <p className="App-intro"/>
         <div style={{height:'500px'}}>
-            <BarChart width={600} height={300} data={data}
-                margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart height={300} data={data}
+                margin={{top: 5, right: 100, left: 70, bottom: 5}}>
                 <XAxis dataKey="name"/>
                 <YAxis axisLine={false} tick={<CustomizedAxisTick />}/>
                 <CartesianGrid vertical={false} stroke="#ebf3f0"/>
                 <Tooltip content={<CustomTooltip/>}/>
-                <Brush dataKey='name' height={30} stroke="#cfd6d9"/>
+                <Brush dataKey='name' height={30} stroke="#8F8F8F"/>
                 <Bar dataKey="duration" fill="#82ca9d" onClick={this.handleClick} minPointSize={10}>
                 {
                   data.map((entry, index) => (
@@ -98,7 +121,8 @@ class App extends Component {
                   ))
                 }
                 </Bar>
-            </BarChart>  
+              </BarChart> 
+            </ResponsiveContainer> 
           </div>
       </div>
     );

@@ -40,3 +40,11 @@
   padding-left: 5px;
   padding-right: 5px;
 }
+
+.recharts-cartesian-axis-tick-value {
+  font-size: 14px !important;
+}
+
+.yAxis .recharts-cartesian-axis-tick-line {
+  stroke: transparent;
+}
